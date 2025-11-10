@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [[ $MLFLOW_MODEL_URI_MODE='alias' ]]; then
   export MLFLOW_MODEL_URI="models:/$MLFLOW_MODEL_NAME@$MLFLOW_MODEL_ALIAS"
 else
