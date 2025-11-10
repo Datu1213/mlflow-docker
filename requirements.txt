@@ -66,6 +66,7 @@ pycparser==2.23
 pydantic==2.12.4
 pydantic-core==2.41.5
 pyparsing==3.2.5
+pyspark[sql]==3.5.7
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
 pytz==2025.2
