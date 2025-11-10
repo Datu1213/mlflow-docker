@@ -1,43 +1,51 @@
-FROM python:3.11-bullseye
+# ---------- Builder Stage ----------
+FROM python:3.11-bullseye AS builder
 
-USER root
-
-ENV MLFLOW_TRACKING_URI "http://mlflow-server:5000"
-      # 告诉它S3(MinIO)在哪里
-ENV MLFLOW_S3_ENDPOINT_URL "http://minio:9000"
-ENV AWS_ACCESS_KEY_ID=minioadmin
-ENV AWS_SECRET_ACCESS_KEY minioadmin
-# 后端存储 (元数据): 指向现有的Postgres服务和新数据库
-ENV MLFLOW_BACKEND_STORE_URI "postgresql://airflow:airflow@postgres:5432/mlflow_db"
-      # 产物存储 (模型文件): 指向MinIO服务
-ENV MLFLOW_ARTIFACT_ROOT "s3://mlflow-artifacts/"
-      # S3连接凭证 (指向MinIO)
-ENV AWS_ACCESS_KEY_ID minioadmin
-ENV AWS_SECRET_ACCESS_KEY minioadmin
-ENV MLFLOW_EXPOSE_PROMETHEUS './mlflow_metrics'
-# 'server' or 'model' 
-ENV MLFLOW_MODE 'server'
-ENV MLFLOW_MODEL_NAME  'iris_logistic_regression'
-
-ENV MLFLOW_MODEL_VERSION '1'
-ENV MLFLOW_MODEL_ALIAS 'Staging'
-ENV MLFLOW_MODEL_URI_MODE 'alias'
-ENV MLFLOW_WORKERS 2
-ENV MLFLOW_SERVER_ALLOWED_HOSTS 'mlflow-server:5000,localhost:5000'
-
+# Install build dependencies
 RUN apt-get update && \
-    # --------  Important  ------------
-    # Use headless JDK to avoid ument depandencies exceptions
-    # --------  Important  ------------
-    apt-get install -y --no-install-recommends openjdk-17-jdk-headless \
-    pip install --upgrade pip setuptools wheel && \
-    pip install uv && uv venv mlflow-venv && \
-    source mlflow-venv/bin/activate && \
-    uv pip install Werkzeug prometheus_flask_exporter gunicorn alembic sqlalchemy flask psycopg2-binary boto3 mlflow && \
-    uv pip install opentelemetry-sdk opentelemetry-exporter-otlp-proto-http opentelemetry-exporter-prometheus && \
-    apt-get clean && \
+    apt-get install -y --no-install-recommends openjdk-17-jdk-headless && \
     rm -rf /var/lib/apt/lists/*
 
-COPY entrypoint.sh /opt/
+# Copy requirements
+COPY ./requirements.txt /tmp/requirements.txt
 
-ENTRYPOINT [ "/opt/entrypoint.sh" ]
+# Create virtual environment with uv
+RUN pip install --upgrade pip setuptools wheel uv && \
+    uv venv /opt/mlflow-venv && \
+    /opt/mlflow-venv/bin/uv pip install --no-cache-dir -r /tmp/requirements.txt
+
+# ---------- Runtime Stage ----------
+FROM python:3.11-slim-bullseye AS runtime
+
+# Environment variables
+ENV PATH="/opt/mlflow-venv/bin:$PATH" \
+    MLFLOW_TRACKING_URI="http://mlflow-server:5000" \
+    MLFLOW_S3_ENDPOINT_URL="http://minio:9000" \
+    AWS_ACCESS_KEY_ID="minioadmin" \
+    AWS_SECRET_ACCESS_KEY="minioadmin" \
+    MLFLOW_BACKEND_STORE_URI="postgresql://airflow:airflow@postgres:5432/mlflow_db" \
+    MLFLOW_ARTIFACT_ROOT="s3://mlflow-artifacts/" \
+    MLFLOW_EXPOSE_PROMETHEUS="./mlflow_metrics" \
+    MLFLOW_MODE="server" \
+    MLFLOW_MODEL_NAME="iris_logistic_regression" \
+    MLFLOW_MODEL_VERSION="1" \
+    MLFLOW_MODEL_ALIAS="Staging" \
+    MLFLOW_MODEL_URI_MODE="alias" \
+    MLFLOW_WORKERS="2" \
+    MLFLOW_SERVER_ALLOWED_HOSTS="mlflow-server:5000,localhost:5000"
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/mlflow-venv /opt/mlflow-venv
+
+# Copy entrypoint
+COPY entrypoint.sh /opt/entrypoint.sh
+
+# Create non-root user
+RUN useradd -m -u 1000 mlflow && \
+    chown -R mlflow:mlflow /opt
+
+USER mlflow
+
+WORKDIR /opt
+
+ENTRYPOINT ["/opt/entrypoint.sh"]
