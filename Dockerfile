@@ -10,7 +10,7 @@ RUN apt-get update && \
 COPY requirements.txt /tmp/requirements.txt
 
 # Create virtual environment with uv
-# 安装 pip/uv
+# install pip/uv
 RUN python -m pip install --upgrade pip setuptools wheel uv && \
     uv venv /opt/mlflow-venv && \
     . /opt/mlflow-venv/bin/activate && \
