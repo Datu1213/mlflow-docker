@@ -1,4 +1,4 @@
-# mlflow
+# mlflow-docker
 MLFlow Server Image for ML pipeline.
 
 Set **`MLFLOW_MODE`** to run a MLFlow server or model serving.
