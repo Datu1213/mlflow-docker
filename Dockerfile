@@ -11,14 +11,10 @@ COPY requirements.txt /tmp/requirements.txt
 
 # Create virtual environment with uv
 # 安装 pip/uv
-RUN python -m pip install --upgrade pip setuptools wheel uv
-
-# 创建虚拟环境
-RUN uv venv /opt/mlflow-venv && . /opt/mlflow-venv/bin/activate
-
-# 用虚拟环境的 python 安装依赖
-RUN uv pip install --no-cache-dir -vvv -r /tmp/requirements.txt
-
+RUN python -m pip install --upgrade pip setuptools wheel uv && \
+    uv venv /opt/mlflow-venv && \
+    . /opt/mlflow-venv/bin/activate && \
+    uv pip install --no-cache-dir -vvv -r /tmp/requirements.txt
 
 # ---------- Runtime Stage ----------
 FROM python:3.11-slim-bullseye AS runtime
