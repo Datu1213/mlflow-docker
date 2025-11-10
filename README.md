@@ -22,3 +22,27 @@ Set **`MLFLOW_MODEL_URI_MODE`** to ues prefered model-uri:
 | MLFLOW_MODEL_ALIAS              | Alias for the MLflow model version                                          | Staging                                      |
 | MLFLOW_WORKERS                  | Number of MLflow server workers                                             | 2                                            |
 | MLFLOW_SERVER_ALLOWED_HOSTS     | Allowed hosts for MLflow server. Use this to avoid DNS attacks and relevant runtime exceptions.                                             | mlflow-server:5000,localhost:5000            |
+
+# Usage
+### docker
+`docker pull ghcr.io/datu1213/mlflow-docker:1.2.5`
+### Dockerfile
+```yaml
+mlflow-server:
+    image: ghcr.io/datu1213/mlflow-docker:1.2.5
+    ports:
+      - "5000:5000"
+    environment:
+      MLFLOW_MODE: 'server'
+      # Backend storage (Metastore): Postgres or others
+      MLFLOW_BACKEND_STORE_URI: "postgresql://airflow:airflow@postgres:5432/mlflow_db"
+      # Artifact (Model files): MinIO or your own S3
+      MLFLOW_ARTIFACT_ROOT: "s3://mlflow-artifacts/"
+      # S3 Access token
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      MLFLOW_S3_ENDPOINT_URL: "http://minio:9000" # Tell MLflow to use MinIO，instead of AWS S3
+      MLFLOW_EXPOSE_PROMETHEUS: ./mlflow_metrics
+    depends_on:
+      - minio
+```

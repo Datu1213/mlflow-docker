@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [[ $MLFLOW_MODEL_URI_MODE='alias' ]]; then
-  export MLFLOW_MODEL_URI="models:/$MLFLOW_MODEL_NAME@$MLFLOW_MODEL_ALIAS"
+  export MLFLOW_MODEL_URI='models:/$MLFLOW_MODEL_NAME@$MLFLOW_MODEL_ALIAS'
 else
-  export MLFLOW_MODEL_URI="models:/$MLFLOW_MODEL_NAME/$MLFLOW_MODEL_VERSION"
+  export MLFLOW_MODEL_URI='models:/$MLFLOW_MODEL_NAME/$MLFLOW_MODEL_VERSION'
 fi
 
 if [[ $MLFLOW_MODE = 'server' ]]; then
@@ -18,14 +18,14 @@ if [[ $MLFLOW_MODE = 'server' ]]; then
   # --allowed-hosts '<hostname>:<port>,localhost:<port>'
 else
   mlflow models serve \
-      # model-uri format: models:/<model-name>/<model-version>
-      # if you have a registered model with name "MyModel" and version 1
-      # the URI referring to the model is: models:/MyModel/1".
-      # or models:/<model-name>/<model-version>
-      # like models:/MyModel@Staging
-      --model-uri "models:/$MLFLOW_MODEL_NAME@$MLFLOW_MODEL_ALIAS" \
-      --host 0.0.0.0 \
-      --port 5001 \
-      --workers $MLFLOW_WORKERS \
-      --no-conda
+    --model-uri $MLFLOW_MODEL_URI \
+    --host 0.0.0.0 \
+    --port 5001 \
+    --workers $MLFLOW_WORKERS \
+    --no-conda
+    # model-uri format: models:/<model-name>/<model-version>
+    # if you have a registered model with name "MyModel" and version 1
+    # the URI referring to the model is: models:/MyModel/1".
+    # or models:/<model-name>/<model-version>
+    # like models:/MyModel@Staging
 fi
