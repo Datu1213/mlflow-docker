@@ -7,6 +7,8 @@ Set **`MLFLOW_MODEL_URI_MODE`** to ues prefered model-uri:
 - 'alias': models:/`$MLFLOW_MODEL_NAME`@`$MLFLOW_MODEL_ALIAS`
 - 'version':models:/`$MLFLOW_MODEL_NAME`/`$MLFLOW_MODEL_VERSION`
 
+Use it to minimize your code and config and run with no concern about depandencies problems.
+
 | Environment Variable            | Description                                                                 | Default Value                                |
 |---------------------------------|-----------------------------------------------------------------------------|----------------------------------------------|
 | MLFLOW_TRACKING_URI             | Tracking server URI for MLflow                                              | http://mlflow-server:5000                    |
@@ -45,4 +47,26 @@ mlflow-server:
       MLFLOW_EXPOSE_PROMETHEUS: ./mlflow_metrics
     depends_on:
       - minio
+
+mlflow-model-server:
+  image: ghcr.io/datu1213/mlflow-docker:1.2.6
+  ports:
+    - "5004:5001"
+  environment:
+    MLFLOW_MODE: 'model'
+    # Where the MLflow server is
+    MLFLOW_TRACKING_URI: "http://mlflow-server:5000"
+    # S3 Access token
+    AWS_ACCESS_KEY_ID: minioadmin
+    AWS_SECRET_ACCESS_KEY: minioadmin
+    # Tell MLflow to use MinIO，instead of AWS S3
+    MLFLOW_S3_ENDPOINT_URL: "http://minio:9000"
+    MLFLOW_MODEL_NAME: "iris_logistic_regression"
+    MLFLOW_MODEL_VERSION: "1"
+    MLFLOW_MODEL_ALIAS: "Staging"
+    # Use alias to build model-uri
+    MLFLOW_MODEL_URI_MODE: "alias"
+  depends_on:
+    - minio
+    - mlflow-server
 ```
