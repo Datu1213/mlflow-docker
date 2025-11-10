@@ -41,8 +41,9 @@ COPY --from=builder /opt/mlflow-venv /opt/mlflow-venv
 
 # Copy entrypoint
 COPY entrypoint.sh /opt/entrypoint.sh
-
+RUN chmod +x /opt/entrypoint.sh
 # Create non-root user
+
 RUN useradd -m -u 1000 mlflow && \
     chown -R mlflow:mlflow /opt
 
