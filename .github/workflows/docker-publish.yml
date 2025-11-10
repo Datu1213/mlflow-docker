@@ -5,6 +5,7 @@ name: Docker
 # separate terms of service, privacy policy, and support
 # documentation.
 
+# Only when puhs with tag
 on:
   push:
     tags:
