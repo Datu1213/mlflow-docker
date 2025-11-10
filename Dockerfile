@@ -17,7 +17,7 @@ RUN python -m pip install --upgrade pip setuptools wheel uv
 RUN uv venv /opt/mlflow-venv && . /opt/mlflow-venv/bin/activate
 
 # 用虚拟环境的 python 安装依赖
-RUN uv pip install --no-cache-dir -r /tmp/requirements.txt
+RUN uv pip install --no-cache-dir -vvv -r /tmp/requirements.txt
 
 
 # ---------- Runtime Stage ----------
