@@ -10,9 +10,15 @@ RUN apt-get update && \
 COPY ./requirements.txt /tmp/requirements.txt
 
 # Create virtual environment with uv
-RUN pip install --upgrade pip setuptools wheel uv && \
-    uv venv /opt/mlflow-venv && \
-    /opt/mlflow-venv/bin/uv pip install --no-cache-dir -r /tmp/requirements.txt
+# 安装 pip/uv
+RUN python -m pip install --upgrade pip setuptools wheel uv
+
+# 创建虚拟环境
+RUN uv venv /opt/mlflow-venv
+
+# 用虚拟环境的 python 安装依赖
+RUN /opt/mlflow-venv/bin/python -m pip install --no-cache-dir -r /tmp/requirements.txt
+
 
 # ---------- Runtime Stage ----------
 FROM python:3.11-slim-bullseye AS runtime
