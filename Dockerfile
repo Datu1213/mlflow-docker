@@ -20,9 +20,8 @@ RUN python -m pip install --upgrade pip setuptools wheel uv && \
 FROM python:3.11-slim-bullseye AS runtime
 
 # Environment variables
-ENV PATH="/opt/mlflow-venv/bin:$PATH" \
-    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
-    PATH=$JAVA_HOME/bin:$PATH \
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
+    PATH="/opt/mlflow-venv/bin:$JAVA_HOME/bin:$PATH" \
     MLFLOW_TRACKING_URI="http://mlflow-server:5000" \
     MLFLOW_S3_ENDPOINT_URL="http://minio:9000" \
     AWS_ACCESS_KEY_ID="minioadmin" \

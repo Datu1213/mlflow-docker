@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if [[ $MLFLOW_MODEL_URI_MODE='alias' ]]; then
+if [[ $MLFLOW_MODEL_URI_MODE=='alias' ]]; then
   export MLFLOW_MODEL_URI="models:/$MLFLOW_MODEL_NAME@$MLFLOW_MODEL_ALIAS"
 else
   export MLFLOW_MODEL_URI="models:/$MLFLOW_MODEL_NAME/$MLFLOW_MODEL_VERSION"
 fi
 
-if [[ $MLFLOW_MODE = 'server' ]]; then
+if [[ $MLFLOW_MODE == 'server' ]]; then
   mlflow server \
       --host 0.0.0.0 \
       --port 5000 \
