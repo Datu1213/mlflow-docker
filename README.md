@@ -3,7 +3,7 @@ MLFlow Server Image for ML pipeline.
 
 Image:
 ```
-ghcr.io/datu1213/mlflow-docker:1.2.6
+ghcr.io/datu1213/mlflow-docker:1.3.0
 ```
 
 Set **`MLFLOW_MODE`** to run a MLFlow server or model serving.
@@ -32,11 +32,11 @@ Use it to minimize your code and config and run with no concern about depandenci
 
 # Usage
 ### docker
-`docker pull ghcr.io/datu1213/mlflow-docker:1.2.6`
+`docker pull ghcr.io/datu1213/mlflow-docker:1.3.0`
 ### Dockerfile
 ```yaml
 mlflow-server:
-    image: ghcr.io/datu1213/mlflow-docker:1.2.6
+    image: ghcr.io/datu1213/mlflow-docker:1.3.0
     ports:
       - "5000:5000"
     environment:
@@ -54,7 +54,7 @@ mlflow-server:
       - minio
 
 mlflow-model-server:
-  image: ghcr.io/datu1213/mlflow-docker:1.2.6
+  image: ghcr.io/datu1213/mlflow-docker:1.3.0
   ports:
     - "5004:5001"
   environment:
